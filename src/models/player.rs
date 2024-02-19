@@ -6,6 +6,18 @@ use super::armor::Armor;
 use super::weapon::Weapon;
 use super::item_type::ItemType;
 
+
+#[derive(Serialize, Deserialize, Debug)]
+enum Fame {
+    Novice,
+    Apprentice,
+    Veteran,
+    Champion,
+    Hero,
+    Legend
+}
+
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Player {
     pub name: String,
