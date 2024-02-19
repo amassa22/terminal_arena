@@ -1,10 +1,6 @@
-pub mod armor;
 pub mod enemy;
 pub mod game;
-pub mod hand_item;
 pub mod inventory;
-pub mod item_type;
 pub mod player;
-pub mod shield;
 pub mod store;
-pub mod weapon;
+pub mod items;

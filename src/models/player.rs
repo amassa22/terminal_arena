@@ -1,8 +1,8 @@
-use super::armor::Armor;
-use super::hand_item::HandItem;
+use super::items::armor::Armor;
+use super::items::hand_item::HandItem;
 use super::inventory::Inventory;
-use super::item_type::ItemType;
-use super::weapon::Weapon;
+use super::items::item_type::ItemType;
+use super::items::weapon::Weapon;
 use prettytable::{cell, format, row, Cell, Row, Table};
 use serde::{Deserialize, Serialize};
 

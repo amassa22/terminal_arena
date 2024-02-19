@@ -9,12 +9,12 @@ use dialoguer::Select;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-use super::armor::{Armor, ArmorType};
-use super::hand_item::HandItem;
-use super::item_type::ItemType;
+use super::items::armor::{Armor, ArmorType};
+use super::items::hand_item::HandItem;
+use super::items::item_type::ItemType;
 use super::player::Player;
-use super::shield::Shield;
-use super::weapon::Weapon;
+use super::items::shield::Shield;
+use super::items::weapon::Weapon;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {

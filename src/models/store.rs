@@ -1,5 +1,5 @@
-use super::armor::Armor;
-use super::hand_item::HandItem;
+use super::items::armor::Armor;
+use super::items::hand_item::HandItem;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
