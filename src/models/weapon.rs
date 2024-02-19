@@ -11,7 +11,19 @@ pub struct Weapon {
 }
 
 impl Weapon {
-    pub fn new(name: String, item_type: ItemType, min_damage: u8, max_damage: u8, req_strength: u8) -> Weapon {
-        Weapon {name, item_type, min_damage, max_damage, req_strength}
+    pub fn new(
+        name: String,
+        item_type: ItemType,
+        min_damage: u8,
+        max_damage: u8,
+        req_strength: u8,
+    ) -> Weapon {
+        Weapon {
+            name,
+            item_type,
+            min_damage,
+            max_damage,
+            req_strength,
+        }
     }
 }

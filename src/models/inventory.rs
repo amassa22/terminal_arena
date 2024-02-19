@@ -1,12 +1,11 @@
-use super::hand_item::HandItem;
 use super::armor::Armor;
+use super::hand_item::HandItem;
 use serde::{Deserialize, Serialize};
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Inventory {
     pub hand_items: Vec<HandItem>,
-    pub armors: Vec<Armor>
+    pub armors: Vec<Armor>,
 }
 
 impl Inventory {

@@ -1,11 +1,11 @@
-use super::hand_item::HandItem;
 use super::armor::Armor;
+use super::hand_item::HandItem;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Enemy {
     name: String,
-    fame: u8, 
+    fame: u8,
     tiredness_level: u8, // max 255
     health: i32,
     max_health: i32,

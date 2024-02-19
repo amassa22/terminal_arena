@@ -1,6 +1,5 @@
-use std::fmt;
 use serde::{Deserialize, Serialize};
-
+use std::fmt;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum ItemType {
@@ -8,8 +7,6 @@ pub enum ItemType {
     SingleHand,
     DoubleHand,
 }
-
-
 
 impl fmt::Display for ItemType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

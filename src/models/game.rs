@@ -3,20 +3,18 @@ use std::io::{Read, Write};
 use std::time::Duration;
 use std::{io, process, thread};
 
-
 use console::Term;
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::Select;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+use super::armor::{Armor, ArmorType};
+use super::hand_item::HandItem;
+use super::item_type::ItemType;
 use super::player::Player;
 use super::shield::Shield;
-use super::item_type::ItemType;
-use super::armor::{Armor, ArmorType};
 use super::weapon::Weapon;
-use super::hand_item::HandItem;
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
@@ -33,9 +31,8 @@ enum GameState {
     InGame,
     GameOver,
     Inventory,
-    Exit
+    Exit,
 }
-
 
 impl Game {
     pub fn new() -> Game {
@@ -43,13 +40,24 @@ impl Game {
         //todo remove after testing
         let shield = Shield::new("Basic Shield".to_string(), ItemType::SingleHand, 15, 10);
         let armor = Armor::new("Basic Helmet".to_string(), ArmorType::Helmet, 5, 10, 100, 5);
-        let weapon2 = Weapon::new("Advanced Rusty Sword".to_string(), ItemType::SingleHand, 1, 3, 1);
+        let weapon2 = Weapon::new(
+            "Advanced Rusty Sword".to_string(),
+            ItemType::SingleHand,
+            1,
+            3,
+            1,
+        );
         player.inventory.add_armor(armor);
         player.inventory.add_hand_item(HandItem::Shield(shield));
         player.inventory.add_hand_item(HandItem::Weapon(weapon2));
         //
 
-        Game {player, state: GameState::MainMenu, current_week: 0, is_fight_week: false}
+        Game {
+            player,
+            state: GameState::MainMenu,
+            current_week: 0,
+            is_fight_week: false,
+        }
     }
 
     fn advance_time(&mut self) {
@@ -78,19 +86,19 @@ impl Game {
 
     fn main_menu(&mut self) {
         let main_menu_options = &["New Game", "Load Game", "Scores", "Exit"];
-    
+
         let main_selection = Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Main Menu")
             .default(0)
             .items(&main_menu_options[..])
             .interact()
             .unwrap();
-    
+
         match main_selection {
             0 => self.new_game(),
-            1 => self.load_game_menu(),  // Call the function to handle loading a game
+            1 => self.load_game_menu(), // Call the function to handle loading a game
             2 => slow_type("Showing high scores..."),
-            3 => self.state =GameState::Exit,
+            3 => self.state = GameState::Exit,
             _ => unreachable!(),
         }
     }
@@ -104,7 +112,6 @@ impl Game {
             slow_type("With a deep breath, you present your offer, only to see a frown crease the owner's face. He weighs the coins with a dismissive glance and declares it insufficient, his words crushing your hopes like fragile leaves underfoot. You return to the confines of the ludus, and your dream of freedom slipping away like sand through your fingers.");
             self.state = GameState::InGame;
         }
-
     }
 
     fn player_info(&self) {
@@ -137,16 +144,24 @@ impl Game {
         println!("Week: {}", self.current_week);
         if self.is_fight_week {
             println!("This is a FIGHT week");
-            let options = &["Fight", "Skip fight", "Player Info", "Inventory", "Save Game", "To Main Menu"];
+            let options = &[
+                "Fight",
+                "Skip fight",
+                "Player Info",
+                "Inventory",
+                "Save Game",
+                "To Main Menu",
+            ];
             let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Ludus")
-            .default(0)
-            .items(&options[..])
-            .interact()
-            .unwrap();
-            match selection { 
+                .with_prompt("Ludus")
+                .default(0)
+                .items(&options[..])
+                .interact()
+                .unwrap();
+            match selection {
                 0 => {
-                    let health_percentage = self.player.health as f32 / self.player.max_health as f32;
+                    let health_percentage =
+                        self.player.health as f32 / self.player.max_health as f32;
                     if health_percentage > 0.05 {
                         self.fight();
                     } else {
@@ -161,19 +176,26 @@ impl Game {
                     self.save_game("save1.json").expect("Failed to save game.");
                     slow_type("Game saved.");
                     self.ludus_menu();
-                },
+                }
                 5 => self.state = GameState::MainMenu,
                 _ => unreachable!(),
             }
-        
         } else {
-            let options = &["Player Info", "Train", "Rest", "Inventory", "Buy Freedom", "Save Game", "To Main Menu"];
+            let options = &[
+                "Player Info",
+                "Train",
+                "Rest",
+                "Inventory",
+                "Buy Freedom",
+                "Save Game",
+                "To Main Menu",
+            ];
             let selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Ludus")
-            .default(0)
-            .items(&options[..])
-            .interact()
-            .unwrap();
+                .with_prompt("Ludus")
+                .default(0)
+                .items(&options[..])
+                .interact()
+                .unwrap();
 
             match selection {
                 0 => self.player_info(),
@@ -185,12 +207,11 @@ impl Game {
                     self.save_game("save1.json").expect("Failed to save game.");
                     slow_type("Game saved.");
                     self.ludus_menu();
-                }, // TODO: create save game feature
+                } // TODO: create save game feature
                 6 => self.state = GameState::MainMenu,
                 _ => unreachable!(),
             }
         }
-
 
         // clear_screen();
     }
@@ -211,14 +232,14 @@ impl Game {
         //todo: add special moves
         slow_type("You are resting. Restored 5 health");
         self.player.heal(5);
-        println!("{}",self.player.health_bar());
+        println!("{}", self.player.health_bar());
         self.advance_time();
         self.state = GameState::InGame;
     }
 
     fn new_game(&mut self) {
         // todo: add backstory of prisor of war
-        // todo: add skills setup during new game like 
+        // todo: add skills setup during new game like
         slow_type("INTRODUCTION...");
         let text = "You found yourself in the arena...with a rusty sword in your hand and a terrifying enemy in front of you";
         slow_type(text);
@@ -237,21 +258,21 @@ impl Game {
 
     fn beg_for_mercy(&mut self) {
         let mercy_option = &["Yes", "No"];
-    
+
         let mercy_selection = Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Beg For Mercy?")
             .default(0)
             .items(&mercy_option[..])
             .interact()
             .unwrap();
-    
+
         match mercy_selection {
             0 => self.show_mercy(),
             1 => {
                 slow_type("Defeated yet defiant, you lie wounded in the Colosseum's arena, refusing to plead for mercy. Your pride remains unbroken, even in the face of imminent death.");
                 slow_type("You feel the cold, sharp sting of your enemy's weapon and everything turns black...");
                 self.state = GameState::GameOver;
-            },
+            }
             _ => unreachable!(),
         }
     }
@@ -275,7 +296,7 @@ impl Game {
         while self.player.health > 0 && enemy.health > 0 {
             clear_screen();
             println!("\t{} \t\t \t{}", self.player.name, enemy.name);
-            println!("{}\t{}\n",self.player.health_bar(), enemy.health_bar());
+            println!("{}\t{}\n", self.player.health_bar(), enemy.health_bar());
             let action_options = &["Head", "Torso", "Legs"];
             let fight_selection = Select::with_theme(&ColorfulTheme::default())
                 .with_prompt("Choose your attack target:")
@@ -283,31 +304,31 @@ impl Game {
                 .items(&action_options[..])
                 .interact()
                 .unwrap();
-    
+
             match fight_selection {
                 0 => {
                     slow_type("Hitting Head...");
                     // Implement the logic for hitting the head
                     enemy.health -= 50;
-                },
+                }
                 1 => {
                     slow_type("Hitting Torso...");
                     enemy.health -= 25;
                     // Implement logic for hitting the torso
-                },
+                }
                 2 => {
                     slow_type("Hitting Legs...");
                     enemy.health -= 1;
                     // Implement logic for hitting the legs
-                },
+                }
                 _ => unreachable!(),
             }
-    
+
             // Example enemy attack logic
             // You can also implement a similar selection process for the enemy or randomize their actions
             slow_type("Enemy attacks back!");
             self.player.take_damage(25); // Example damage from the enemy
-    
+
             // println!("Health: {}", style(self.player.health).red());
             // Check if the player or enemy has been defeated
             if self.player.health <= 0 {
@@ -316,7 +337,7 @@ impl Game {
             } else if enemy.health <= 0 {
                 slow_type("Your decisive blow having vanquished your formidable enemy");
                 slow_type("The crowd erupts in cheers, celebrating your triumph  as you emerge as the undisputed champion of the arena");
-                
+
                 self.player.money += 10; //todo use enemy struct
                 self.state = GameState::InGame;
                 break;
@@ -327,14 +348,14 @@ impl Game {
     }
     fn load_game_menu(&mut self) {
         let save_options = &["Save 1", "Save 2", "Save 3", "Back to Main Menu"];
-    
+
         let save_selection = Select::with_theme(&ColorfulTheme::default())
             .with_prompt("Load Game")
             .default(0)
             .items(&save_options[..])
             .interact()
             .unwrap();
-    
+
         match save_selection {
             0 => {
                 slow_type("Loading Save 1...");
@@ -342,7 +363,7 @@ impl Game {
                     slow_type("Failed to load game.");
                     Game::new()
                 });
-            },
+            }
             1 => slow_type("Loading Save 2..."),
             2 => slow_type("Loading Save 3..."),
             3 => self.main_menu(),
@@ -365,8 +386,6 @@ impl Game {
     }
 }
 
-
-
 fn slow_type(text: &str) {
     for c in text.chars() {
         print!("{}", c);
@@ -385,5 +404,4 @@ fn clear_screen() {
     println!("Press any key to continue...");
     term.read_key().unwrap();
     term.clear_screen().unwrap();
-    
 }
