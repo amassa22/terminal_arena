@@ -35,6 +35,7 @@ pub struct Player {
     pub money: i32,
     pub inventory: Inventory,
     pub victories: i32,
+    pub injured: bool,
 }
 
 impl Player {
@@ -65,12 +66,13 @@ impl Player {
             right_hand: None,
             breastplate: None,
             legs: None,
-            victories: 0
+            victories: 0,
+            injured: false,
         }
     }
 
     pub fn take_damage(&mut self, amount: i32) {
-        // todo: check for overflow for negative health
+        // TODO: check for overflow for negative health
         self.health -= amount;
     }
 
@@ -102,7 +104,7 @@ impl Player {
 
         table.set_titles(Row::new(vec![Cell::new("Attribute"), Cell::new("Value")]));
         table.add_row(row!["Money", format!("💰 {}", self.money)]);
-        table.add_row(row!["Fame", format!("🏆 {:?}", self.fame_level)]); // todo: implement display for Fame
+        table.add_row(row!["Fame", format!("🏆 {:?}", self.fame_level)]); // TODO: implement display for Fame
         table.add_row(row![
             "Tiredness Level",
             format!("⚡ {}", self.tiredness_level)
