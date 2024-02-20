@@ -12,3 +12,27 @@ This is a TUI text based game about fighting in the arena :)
 - [x] add injury
 - [ ] add recover time based on Player attribute
 - [ ] training option for strength or agility
+
+
+# Player 
+
+## Stats
+
+- Strength
+    - equip item
+    - damage
+- Agility
+    - evade chance
+    - less injury chance
+- Endurance
+    - more health
+    - more energy
+
+
+## Items
+- Weight
+    - Decrease evade chance
+- Defence
+    - Decrease damage
+- Damage
+    - Self-explanatory
