@@ -217,7 +217,7 @@ impl Game {
         slow_type("You are training...");
         self.player.strength += 1;
         self.advance_time();
-        self.state = GameState::InGame;
+        self.state = GameState::InGame; //todo: maybe add it to advance_time()
     }
 
     fn rest(&mut self) {
@@ -228,7 +228,7 @@ impl Game {
         self.player.heal(5);
         println!("{}", self.player.health_bar());
         self.advance_time();
-        self.state = GameState::InGame;
+        self.state = GameState::InGame; //todo: maybe add it to advance_time()
     }
 
     fn new_game(&mut self) {
@@ -272,6 +272,7 @@ impl Game {
     }
 
     fn show_mercy(&mut self) {
+        // Embrace this new life with the strength of a warrior and the humility of one who has been given a second chance. Fight well, fight with honor, and let each victory bring you closer to the glory that now beckons.
         slow_type("You raising your trembling hands in a desperate plea for mercy. Your eyes, filled with a mix of fear and resignation, scan the sea of faces in the crowded stands, searching for a hint of compassion. ");
         let is_successfull = rand::thread_rng().gen_bool(0.5); //todo: update chance based on popularity/fame
         if is_successfull {
@@ -333,6 +334,21 @@ impl Game {
                 slow_type("The crowd erupts in cheers, celebrating your triumph  as you emerge as the undisputed champion of the arena");
 
                 self.player.money += 10; //todo use enemy struct
+                if self.player.victories == 0 {
+                    // first victory
+                    slow_type("You are led out of the arena, not as a mere prisoner of war or a slave bound by chains, but as a warrior who has proven his mettle in the heat of combat.");
+                    slow_type("The man in a silk cloth and two body guards approach you...");
+                    slow_type("[LANISTA]");
+
+                    slow_type("    - You fought well today, beyond what was expected for a first fight.  Your victory is just the start.");
+                    slow_type("He pauses, ensuring his words sink in before continuing.");
+                    slow_type("    - Train hard, fight harder. Remember, you're here because I chose you—I see the gladiator in you. Your past is irrelevant; your future in the arena is what matters now.");
+                    slow_type("The lanista's gaze hardens");
+                    slow_type("    - I see in you a fighter worth the investment - prove me right, fight well and you will be rewarded.");
+                    slow_type("Lanista leaves...Two of his bodyguards excort you to the Ludus.");
+
+                }
+                self.player.victories += 1;
                 self.state = GameState::InGame;
                 break;
             }

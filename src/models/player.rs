@@ -7,7 +7,7 @@ use prettytable::{cell, format, row, Cell, Row, Table};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-enum Fame {
+pub enum Fame {
     Novice,
     Apprentice,
     Veteran,
@@ -19,7 +19,8 @@ enum Fame {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Player {
     pub name: String,
-    pub fame: u8,
+    pub fame: i32,
+    pub fame_level: Fame,
     tiredness_level: u8, // max 255
     pub health: i32,
     pub max_health: i32,
@@ -33,6 +34,7 @@ pub struct Player {
     pub legs: Option<Armor>,
     pub money: i32,
     pub inventory: Inventory,
+    pub victories: i32,
 }
 
 impl Player {
@@ -50,6 +52,7 @@ impl Player {
             name,
             left_hand: HandItem::Weapon(weapon),
             fame: 0,
+            fame_level: Fame::Novice,
             tiredness_level: 0,
             health: 100,
             strength: 5,
@@ -62,6 +65,7 @@ impl Player {
             right_hand: None,
             breastplate: None,
             legs: None,
+            victories: 0
         }
     }
 
@@ -98,10 +102,13 @@ impl Player {
 
         table.set_titles(Row::new(vec![Cell::new("Attribute"), Cell::new("Value")]));
         table.add_row(row!["Money", format!("💰 {}", self.money)]);
-        table.add_row(row!["Fame", format!("🏆 {}", self.fame)]);
+        table.add_row(row!["Fame", format!("🏆 {:?}", self.fame_level)]); // todo: implement display for Fame
         table.add_row(row![
             "Tiredness Level",
             format!("⚡ {}", self.tiredness_level)
+        ]);
+        table.add_row(row![
+            "Victories", format!("⚔️  {}", self.victories)
         ]);
         table.add_row(row![
             "Health",
