@@ -66,6 +66,7 @@ impl Player {
     }
 
     pub fn take_damage(&mut self, amount: i32) {
+        // todo: check for overflow for negative health
         self.health -= amount;
     }
 
