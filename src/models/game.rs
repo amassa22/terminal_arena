@@ -126,6 +126,7 @@ impl Game {
 
     fn skip_fight(&mut self) {
         slow_type("You choose to skip this fight!");
+        slow_type("Your lanista is not happy...");
         slow_type("Your are losing fame.");
         self.player.fame -= 10;
         //todo logic for fame loss
@@ -133,13 +134,6 @@ impl Game {
     }
 
     fn ludus_menu(&mut self) {
-        //todo: refactory boiler plate code
-        //todo: add start rebelion (after achieving fame level and skill and time)
-        //todo: select enemy
-        //todo add check for fight if health above 50% otherwise you are not ready for a fight and have to skip
-        //todo: add injury
-        //todo: add recover time based on Player attribute
-        //todo: training option for strength or agility
         print_line();
         println!("Week: {}", self.current_week);
         if self.is_fight_week {
