@@ -11,10 +11,10 @@ use serde::{Deserialize, Serialize};
 
 use super::items::armor::{Armor, ArmorType};
 use super::items::hand_item::HandItem;
-use super::items::item_type::ItemType;
+use super::items::hand_item::HandItemType;
+use super::items::shield::{self, Shield};
+use super::items::weapon::{self, Weapon};
 use super::player::Player;
-use super::items::shield::Shield;
-use super::items::weapon::Weapon;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
@@ -38,17 +38,34 @@ impl Game {
     pub fn new() -> Game {
         let mut player: Player = Player::new("Playername".to_string());
         //TODO remove after testing
-        let shield = Shield::new("Basic Shield".to_string(), ItemType::SingleHand, 15, 10);
+        let shield = Shield::new(
+            "Basic Shield".to_string(),
+            HandItemType::Single,
+            15,
+            10,
+            15,
+            25,
+        );
+        let shield2 = Shield::new(
+            "Advanced Shield".to_string(),
+            HandItemType::Single,
+            15,
+            50,
+            15,
+            25,
+        );
+
         let armor = Armor::new("Basic Helmet".to_string(), ArmorType::Helmet, 5, 10, 100, 5);
         let weapon2 = Weapon::new(
             "Advanced Rusty Sword".to_string(),
-            ItemType::SingleHand,
+            HandItemType::Single,
             1,
             3,
             1,
         );
         player.inventory.add_armor(armor);
         player.inventory.add_hand_item(HandItem::Shield(shield));
+        player.inventory.add_hand_item(HandItem::Shield(shield2));
         player.inventory.add_hand_item(HandItem::Weapon(weapon2));
         //
 
@@ -80,7 +97,7 @@ impl Game {
     }
 
     fn exit(&mut self) {
-        slow_type("Bye!");
+        // slow_type("Bye!");
         process::exit(0);
     }
 
@@ -116,12 +133,195 @@ impl Game {
 
     fn player_info(&self) {
         self.player.player_info();
+        self.player.equipment.to_pretty_table();
         clear_screen();
     }
 
-    fn player_inventory(&self) {
-        self.player.player_inventory();
-        clear_screen();
+    fn player_inventory(&mut self) {
+        // self.player.player_inventory();
+        let inventory_options = &["Weapons", "Shields", "Helmets", "Back to Ludus"];
+        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Inventory")
+            .default(0)
+            .items(&inventory_options[..])
+            .interact()
+            .unwrap();
+
+        match inventory_selection {
+            0 => {
+                slow_type("Weapons");
+                self.player.player_inventory_weapon();
+                self.player_inventory_equip_weapon();
+            }
+            1 => {
+                slow_type("Shields");
+                self.player.player_inventory_shields();
+                self.player_inventory_equip_shield();
+            }
+            2 => {
+                slow_type("Armor");
+                self.player.player_inventory_armor();
+                self.player_inventory_equip_armor();
+            }
+            3 => self.ludus_menu(),
+            _ => unreachable!(),
+        }
+
+        // clear_screen();
+    }
+
+    fn player_inventory_equip_weapon(&mut self) {
+        let back_option = "Back to Inventory";
+
+        let mut weapon_names: Vec<String> = self
+            .player
+            .inventory
+            .hand_items
+            .iter()
+            .filter_map(|item| match item {
+                HandItem::Weapon(weapon) => Some(weapon.name.clone()),
+                _ => None, // Ignore items that are not weapons
+            })
+            .collect();
+
+        weapon_names.push(back_option.to_string());
+
+        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Equip")
+            .default(0)
+            .items(&weapon_names)
+            .interact()
+            .unwrap();
+
+        if inventory_selection == weapon_names.len() - 1 {
+            // The player chose the "Back" option
+            self.player_inventory();
+        } else {
+            println!("Equipping: {}", weapon_names[inventory_selection]);
+            let weapons: Vec<&Weapon> = self
+                .player
+                .inventory
+                .hand_items
+                .iter()
+                .filter_map(|item| match item {
+                    HandItem::Weapon(weapon) => Some(weapon),
+                    _ => None,
+                })
+                .collect();
+            let selected_weapon = weapons[inventory_selection].clone();
+            if self.player.strength <= selected_weapon.req_strength {
+                slow_type(format!("Can not equip: {:?}", selected_weapon).as_str());
+                slow_type(
+                    format!(
+                        "Strength Required: {} Current Strength {}",
+                        selected_weapon.req_strength, self.player.strength
+                    )
+                    .as_str(),
+                );
+            } else {
+                slow_type(format!("Equipping: {:?}", selected_weapon).as_str());
+                self.player.equipment.equip_weapon(selected_weapon);
+            }
+        }
+        // clear_screen();
+    }
+
+    fn player_inventory_equip_shield(&mut self) {
+        let back_option = "Back to Inventory";
+
+        let mut shield_names: Vec<String> = self
+            .player
+            .inventory
+            .hand_items
+            .iter()
+            .filter_map(|item| match item {
+                HandItem::Shield(shield) => Some(shield.name.clone()),
+                _ => None, // Ignore items that are not weapons
+            })
+            .collect();
+        shield_names.push(back_option.to_string());
+
+        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Equip")
+            .default(0)
+            .items(&shield_names)
+            .interact()
+            .unwrap();
+
+        if inventory_selection == shield_names.len() - 1 {
+            // The player chose the "Back" option
+            self.player_inventory();
+        } else {
+            let shields: Vec<&Shield> = self
+                .player
+                .inventory
+                .hand_items
+                .iter()
+                .filter_map(|item| match item {
+                    HandItem::Shield(shield) => Some(shield),
+                    _ => None,
+                })
+                .collect();
+            let selected_shield = shields[inventory_selection];
+            if self.player.strength <= selected_shield.req_strength {
+                slow_type(format!("Can not equip: {:?}", selected_shield).as_str());
+                slow_type(
+                    format!(
+                        "Strength Required: {} Current Strength {}",
+                        selected_shield.req_strength, self.player.strength
+                    )
+                    .as_str(),
+                );
+            } else {
+                slow_type(format!("Equipping: {:?}", selected_shield).as_str());
+                self.player
+                    .equipment
+                    .equip_shield(selected_shield.to_owned());
+            }
+        }
+        // clear_screen();
+    }
+
+    fn player_inventory_equip_armor(&mut self) {
+        let back_option = "Back to Inventory";
+        let mut armor_names: Vec<String> = self
+            .player
+            .inventory
+            .armors
+            .iter()
+            .map(|armor| armor.name.clone())
+            .collect();
+        armor_names.push(back_option.to_string());
+
+        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Equip")
+            .default(0)
+            .items(&armor_names)
+            .interact()
+            .unwrap();
+
+        if inventory_selection == armor_names.len() - 1 {
+            // The player chose the "Back" option
+            self.player_inventory();
+        } else {
+            let selected_armor = self.player.inventory.armors[inventory_selection].clone();
+            if self.player.strength <= selected_armor.req_strength {
+                slow_type(format!("Can not equip: {}", armor_names[inventory_selection]).as_str());
+                slow_type(
+                    format!(
+                        "Strength Required: {} Current Strength {}",
+                        selected_armor.req_strength, self.player.strength
+                    )
+                    .as_str(),
+                );
+            } else {
+                slow_type(format!("Equipping: {}", armor_names[inventory_selection]).as_str());
+                self.player
+                    .equipment
+                    .equip_armor(self.player.inventory.armors[inventory_selection].clone());
+            }
+        }
+        // clear_screen();
     }
 
     fn skip_fight(&mut self) {
@@ -294,7 +494,6 @@ impl Game {
     }
 
     fn fight(&mut self) {
-        // let weapon = Weapon::new("Basic Rusty Sword".to_string(), ItemType::SingleHand, 1, 3, 1);
         let mut enemy: Player = Player::new("Enemy1".to_string()); //TODO select enemy for each fight
         while self.player.health > 0 && enemy.health > 0 {
             clear_screen();
@@ -330,7 +529,6 @@ impl Game {
             // Example enemy attack logic
             slow_type("Enemy attacks back!");
             self.player.take_damage(25); // Example damage from the enemy
-
 
             // Check if the player or enemy has been defeated
             if self.player.health <= 0 {

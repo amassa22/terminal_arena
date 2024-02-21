@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub enum ArmorType {
     Helmet,
     // Shoulder,
@@ -21,7 +21,7 @@ impl fmt::Display for ArmorType {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Armor {
     pub name: String,
     pub armor_type: ArmorType,
@@ -29,6 +29,12 @@ pub struct Armor {
     pub req_strength: u8,
     pub price: u32,
     pub weight: u32,
+}
+
+impl fmt::Display for Armor {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 impl Armor {
