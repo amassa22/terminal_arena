@@ -1,7 +1,7 @@
 use super::armor::Armor;
 use super::weapon::Weapon;
 use super::{armor::ArmorType, shield::Shield};
-use prettytable::{cell, format, row, Cell, Row, Table};
+use prettytable::{cell, row, Table};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

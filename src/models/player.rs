@@ -1,9 +1,7 @@
 use super::inventory::Inventory;
 use super::items::hand_item::HandItem;
-use super::items::hand_item::HandItemType;
-use super::items::weapon::Weapon;
-use super::items::{armor::Armor, hand_item::Equipment};
-use prettytable::{cell, format, row, Cell, Row, Table};
+use super::items::hand_item::Equipment;
+use prettytable::{cell, row, Cell, Row, Table};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -106,72 +104,7 @@ impl Player {
         println!("👤 Player Information: {}", self.name);
         table.printstd();
     }
-
-    // pub fn equip(&self, item_id: i32) {
-
-    // }
-
-    pub fn player_inventory(&self) {
-        let mut weapons_table = Table::new();
-        let mut shield_table = Table::new();
-
-        weapons_table.set_titles(row!["Name", "Type", "Damage", "Required Strength"]);
-        shield_table.set_titles(row!["Name", "Block Damage", "Required Strength"]);
-
-        for item in &self.inventory.hand_items {
-            match item {
-                HandItem::Weapon(weapon) => {
-                    weapons_table.add_row(row![
-                        &weapon.name,
-                        &weapon.item_type,
-                        format!("{}-{}", weapon.min_damage, weapon.max_damage),
-                        weapon.req_strength.to_string()
-                    ]);
-                }
-                HandItem::Shield(shield) => {
-                    shield_table.add_row(row![
-                        &shield.name,
-                        shield.block_damage.to_string(),
-                        shield.req_strength.to_string()
-                    ]);
-                } // HandItem::BareHand => {
-                  //     // Explicitly do nothing here, which should not cause a type inconsistency
-                  // }
-            }
-        }
-
-        let mut armors_table = Table::new();
-        armors_table.set_titles(row![
-            "Name",
-            "Type",
-            "Defense",
-            "Weight",
-            "Required Strength",
-            "Price"
-        ]);
-
-        for item in &self.inventory.armors {
-            armors_table.add_row(row![
-                item.name,
-                item.armor_type,
-                item.defense,
-                item.weight,
-                item.req_strength,
-                item.price
-            ]);
-        }
-
-        // Print the tables
-        println!("Inventory");
-        print_line();
-        println!("Weapons");
-        weapons_table.printstd();
-        println!("Shields");
-        shield_table.printstd();
-        println!("Armors");
-        armors_table.printstd();
-    }
-
+    
     pub fn player_inventory_weapon(&self) {
         let mut weapons_table = Table::new();
 
@@ -187,7 +120,7 @@ impl Player {
                         weapon.req_strength.to_string()
                     ]);
                 }
-                HandItem::Shield(shield) => {}
+                HandItem::Shield(_) => {}
             }
         }
         // Print the tables

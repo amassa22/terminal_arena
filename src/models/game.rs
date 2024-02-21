@@ -12,8 +12,8 @@ use serde::{Deserialize, Serialize};
 use super::items::armor::{Armor, ArmorType};
 use super::items::hand_item::HandItem;
 use super::items::hand_item::HandItemType;
-use super::items::shield::{self, Shield};
-use super::items::weapon::{self, Weapon};
+use super::items::shield::Shield;
+use super::items::weapon::Weapon;
 use super::player::Player;
 
 #[derive(Serialize, Deserialize, Debug)]
