@@ -4,3 +4,4 @@ pub mod inventory;
 pub mod items;
 pub mod player;
 pub mod store;
+pub mod utils;

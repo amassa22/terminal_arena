@@ -1,6 +1,7 @@
 use super::inventory::Inventory;
-use super::items::hand_item::HandItem;
 use super::items::hand_item::Equipment;
+use super::items::hand_item::HandItem;
+use super::utils::print_line;
 use prettytable::{cell, row, Cell, Row, Table};
 use serde::{Deserialize, Serialize};
 
@@ -104,7 +105,7 @@ impl Player {
         println!("👤 Player Information: {}", self.name);
         table.printstd();
     }
-    
+
     pub fn player_inventory_weapon(&self) {
         let mut weapons_table = Table::new();
 
@@ -192,8 +193,4 @@ impl Player {
         println!("Armors");
         armors_table.printstd();
     }
-}
-
-fn print_line() {
-    println!("{}", "═".repeat(30)); // Adjust the number of repetitions to fit your layout
 }

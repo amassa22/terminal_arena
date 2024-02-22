@@ -1,13 +1,10 @@
-use std::fs::{self, File};
-use std::io::{Read, Write};
-use std::time::Duration;
-use std::{io, process, thread};
-
-use console::Term;
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::Select;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use std::fs::{self, File};
+use std::io::Read;
+use std::{io, process};
 
 use super::items::armor::{Armor, ArmorType};
 use super::items::hand_item::HandItem;
@@ -15,6 +12,7 @@ use super::items::hand_item::HandItemType;
 use super::items::shield::Shield;
 use super::items::weapon::Weapon;
 use super::player::Player;
+use super::utils::{clear_screen, print_line, slow_type};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
@@ -429,9 +427,7 @@ impl Game {
     }
 
     fn rest(&mut self) {
-        //TODO: add tiredness
-        //TODO: add skill increase
-        //TODO: add special moves
+        // TODO: figure out heal amout and injury heal process
         slow_type("You are resting. Restored 5 health");
         self.player.heal(5);
         println!("{}", self.player.health_bar());
@@ -543,12 +539,12 @@ impl Game {
                     // first victory
                     slow_type("You are led out of the arena, not as a mere prisoner of war or a slave bound by chains, but as a warrior who has proven his mettle in the heat of combat.");
                     slow_type("The man in a silk cloth and two body guards approach you...");
-                    slow_type("[LANISTA]");
-                    slow_type("    - You fought well today, beyond what was expected for a first fight.  Your victory is just the start.");
+                    slow_type("");
+                    slow_type("[LANISTA] - You fought well today, beyond what was expected for a first fight.  Your victory is just the start.");
                     slow_type("He pauses, ensuring his words sink in before continuing.");
-                    slow_type("    - Train hard, fight harder. Remember, you're here because I chose you—I see the gladiator in you. Your past is irrelevant; your future in the arena is what matters now.");
+                    slow_type("[LANISTA] - Train hard, fight harder. Remember, you're here because I chose you—I see the gladiator in you. Your past is irrelevant; your future in the arena is what matters now.");
                     slow_type("The lanista's gaze hardens");
-                    slow_type("    - I see in you a fighter worth the investment - prove me right, fight well and you will be rewarded.");
+                    slow_type("[LANISTA] - I see in you a fighter worth the investment - prove me right, fight well and you will be rewarded.");
                     slow_type("Lanista leaves...Two of his bodyguards excort you to the Ludus.");
                 }
                 self.player.victories += 1;
@@ -598,24 +594,4 @@ impl Game {
         let game = serde_json::from_str(&contents)?;
         Ok(game)
     }
-}
-
-fn slow_type(text: &str) {
-    for c in text.chars() {
-        print!("{}", c);
-        std::io::stdout().flush().unwrap(); // Make sure character is printed immediately
-        thread::sleep(Duration::from_millis(5));
-    }
-    println!();
-}
-
-fn print_line() {
-    println!("{}", "═".repeat(30)); // Adjust the number of repetitions to fit your layout
-}
-
-fn clear_screen() {
-    let term = Term::stdout();
-    println!("Press any key to continue...");
-    term.read_key().unwrap();
-    term.clear_screen().unwrap();
 }
