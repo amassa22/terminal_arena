@@ -20,7 +20,7 @@ pub struct Player {
     pub name: String,
     pub fame: i32,
     pub fame_level: Fame,
-    tiredness_level: u8, // max 255
+    pub energy: u8, // max 255
     pub health: i32,
     pub max_health: i32,
     pub strength: u8,
@@ -41,7 +41,7 @@ impl Player {
             name,
             fame: 0,
             fame_level: Fame::Novice,
-            tiredness_level: 0,
+            energy: 100,
             health: 100,
             strength: 5,
             agility: 5,
@@ -90,8 +90,8 @@ impl Player {
         table.add_row(row!["Money", format!("💰 {}", self.money)]);
         table.add_row(row!["Fame", format!("🏆 {:?}", self.fame_level)]); // TODO: implement display for Fame
         table.add_row(row![
-            "Tiredness Level",
-            format!("⚡ {}", self.tiredness_level)
+            "Energy",
+            format!("⚡ {}", self.energy)
         ]);
         table.add_row(row!["Victories", format!("⚔️  {}", self.victories)]);
         table.add_row(row![
