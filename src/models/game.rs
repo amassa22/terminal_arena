@@ -12,7 +12,7 @@ use super::items::hand_item::HandItemType;
 use super::items::shield::Shield;
 use super::items::weapon::Weapon;
 use super::player::Player;
-use super::utils::{clear_screen, print_line, slow_type};
+use super::utils::{clear_screen, print_line, print_logo, slow_type};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
@@ -100,6 +100,9 @@ impl Game {
     }
 
     fn main_menu(&mut self) {
+        print_line();
+        print_logo();
+        print_line();
         let main_menu_options = &["New Game", "Load Game", "Scores", "Exit"];
 
         let main_selection = Select::with_theme(&ColorfulTheme::default())
@@ -108,7 +111,6 @@ impl Game {
             .items(&main_menu_options[..])
             .interact()
             .unwrap();
-
         match main_selection {
             0 => self.new_game(),
             1 => self.load_game_menu(), // Call the function to handle loading a game
