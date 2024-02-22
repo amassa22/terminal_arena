@@ -89,10 +89,7 @@ impl Player {
         table.set_titles(Row::new(vec![Cell::new("Attribute"), Cell::new("Value")]));
         table.add_row(row!["Money", format!("💰 {}", self.money)]);
         table.add_row(row!["Fame", format!("🏆 {:?}", self.fame_level)]); // TODO: implement display for Fame
-        table.add_row(row![
-            "Energy",
-            format!("⚡ {}", self.energy)
-        ]);
+        table.add_row(row!["Energy", format!("⚡ {}", self.energy)]);
         table.add_row(row!["Victories", format!("⚔️  {}", self.victories)]);
         table.add_row(row![
             "Health",

@@ -44,7 +44,6 @@ pub fn slow_type(text: &str) {
     }
 }
 
-
 pub fn print_line() {
     let (cols, _) = size().unwrap(); // Get the size of the terminal (columns, rows)
     println!("{}", "═".repeat(cols as usize)); // Print a line that matches the width of the terminal
@@ -56,8 +55,6 @@ pub fn clear_screen() {
     term.read_key().unwrap();
     term.clear_screen().unwrap();
 }
-
-
 
 pub fn print_logo() {
     let art = r#" _____                   _             _      _                         
