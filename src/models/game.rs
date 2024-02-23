@@ -176,12 +176,9 @@ impl Game {
 
         let mut weapon_names: Vec<String> = self
             .store
-            .hand_items
+            .weapons
             .iter()
-            .filter_map(|item| match item {
-                HandItem::Weapon(weapon) => Some(weapon.name.clone()),
-                _ => None, // Ignore items that are not weapons
-            })
+            .map(|weapon| weapon.name.clone())
             .collect();
 
         weapon_names.push(back_option.to_string());
@@ -197,16 +194,7 @@ impl Game {
             // The player chose the "Back" option
             self.store_menu();
         } else {
-            let weapons: Vec<&Weapon> = self
-                .store
-                .hand_items
-                .iter()
-                .filter_map(|item| match item {
-                    HandItem::Weapon(weapon) => Some(weapon),
-                    _ => None,
-                })
-                .collect();
-            let selected_weapon = weapons[store_selection].clone();
+            let selected_weapon = self.store.weapons[store_selection].clone();
             if self.player.money < selected_weapon.price {
                 slow_type(format!("Can not buy: {}", selected_weapon.name).as_str());
                 slow_type(
@@ -219,7 +207,7 @@ impl Game {
             } else {
                 let name = &selected_weapon.name.clone();
                 self.player.money -= &selected_weapon.price;
-                self.store.remove_hand_item(store_selection);
+                self.store.remove_weapon(store_selection);
                 self.player
                     .inventory
                     .add_hand_item(HandItem::Weapon(selected_weapon));
