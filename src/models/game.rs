@@ -1,3 +1,11 @@
+use super::items::armor::{Armor, ArmorType};
+use super::items::hand_item::HandItem;
+use super::items::hand_item::HandItemType;
+use super::items::shield::Shield;
+use super::items::weapon::Weapon;
+use super::player::Player;
+use super::store::Store;
+use super::utils::{clear_screen, print_line, print_logo, slow_type};
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::Select;
 use rand::Rng;
@@ -5,14 +13,6 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::Read;
 use std::{io, process};
-use super::store::Store;
-use super::items::armor::{Armor, ArmorType};
-use super::items::hand_item::HandItem;
-use super::items::hand_item::HandItemType;
-use super::items::shield::Shield;
-use super::items::weapon::Weapon;
-use super::player::Player;
-use super::utils::{clear_screen, print_line, print_logo, slow_type};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
@@ -37,7 +37,6 @@ impl Game {
     pub fn new() -> Game {
         let mut player: Player = Player::new("Playername".to_string());
         let mut store: Store = Store::new();
-
 
         Game {
             player,
@@ -221,7 +220,9 @@ impl Game {
                 let name = &selected_weapon.name.clone();
                 self.player.money -= &selected_weapon.price;
                 self.store.remove_hand_item(store_selection);
-                self.player.inventory.add_hand_item(HandItem::Weapon(selected_weapon));
+                self.player
+                    .inventory
+                    .add_hand_item(HandItem::Weapon(selected_weapon));
                 slow_type(format!("Purchased: {}", name).as_str());
             }
         }

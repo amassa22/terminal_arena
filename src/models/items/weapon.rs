@@ -18,7 +18,7 @@ impl Weapon {
         min_damage: u8,
         max_damage: u8,
         req_strength: u8,
-        price: i32
+        price: i32,
     ) -> Weapon {
         Weapon {
             name,
@@ -26,7 +26,7 @@ impl Weapon {
             min_damage,
             max_damage,
             req_strength,
-            price
+            price,
         }
     }
 }

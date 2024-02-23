@@ -55,7 +55,7 @@ impl Equipment {
             1,
             3,
             1,
-            5
+            5,
         );
         Equipment {
             right_hand: Hand::Single(HandItem::Weapon(weapon)),

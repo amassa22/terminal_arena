@@ -1,7 +1,7 @@
 use super::items::armor::ArmorType;
+use super::items::hand_item::{HandItem, HandItemType};
 use super::items::weapon::Weapon;
 use super::items::{armor::Armor, shield::Shield};
-use super::items::hand_item::{HandItem, HandItemType};
 use rand::seq::index;
 use serde::{Deserialize, Serialize};
 
@@ -13,7 +13,6 @@ pub struct Inventory {
 
 impl Inventory {
     pub fn new() -> Self {
-
         //TODO remove after testing
         let shield = Shield::new(
             "Basic Shield".to_string(),
@@ -39,7 +38,7 @@ impl Inventory {
             1,
             3,
             1,
-            5
+            5,
         );
         let mut hand_items = Vec::new();
         let mut armors = Vec::new();
