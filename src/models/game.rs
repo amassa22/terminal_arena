@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::Read;
 use std::{io, process};
-
+use super::store::Store;
 use super::items::armor::{Armor, ArmorType};
 use super::items::hand_item::HandItem;
 use super::items::hand_item::HandItemType;
@@ -17,6 +17,7 @@ use super::utils::{clear_screen, print_line, print_logo, slow_type};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
     player: Player,
+    store: Store,
     state: GameState,
     current_week: u64,
     is_fight_week: bool,
@@ -35,40 +36,12 @@ enum GameState {
 impl Game {
     pub fn new() -> Game {
         let mut player: Player = Player::new("Playername".to_string());
-        //TODO remove after testing
-        let shield = Shield::new(
-            "Basic Shield".to_string(),
-            HandItemType::Single,
-            15,
-            10,
-            15,
-            25,
-        );
-        let shield2 = Shield::new(
-            "Advanced Shield".to_string(),
-            HandItemType::Single,
-            15,
-            50,
-            15,
-            25,
-        );
+        let mut store: Store = Store::new();
 
-        let armor = Armor::new("Basic Helmet".to_string(), ArmorType::Helmet, 5, 10, 100, 5);
-        let weapon2 = Weapon::new(
-            "Advanced Rusty Sword".to_string(),
-            HandItemType::Single,
-            1,
-            3,
-            1,
-        );
-        player.inventory.add_armor(armor);
-        player.inventory.add_hand_item(HandItem::Shield(shield));
-        player.inventory.add_hand_item(HandItem::Shield(shield2));
-        player.inventory.add_hand_item(HandItem::Weapon(weapon2));
-        //
 
         Game {
             player,
+            store,
             state: GameState::MainMenu,
             current_week: 0,
             is_fight_week: false,
@@ -170,6 +143,91 @@ impl Game {
         // clear_screen();
     }
 
+    fn store_menu(&mut self) {
+        // self.player.player_inventory();
+        let inventory_options = &["Weapons", "Shields", "Helmets", "Back to Ludus"];
+        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Store")
+            .default(0)
+            .items(&inventory_options[..])
+            .interact()
+            .unwrap();
+
+        match inventory_selection {
+            0 => {
+                slow_type("Weapons");
+                self.store.print_all_weapons();
+                self.buy_weapon_menu();
+            }
+            1 => {
+                slow_type("Shields");
+            }
+            2 => {
+                slow_type("Armor");
+            }
+            3 => self.ludus_menu(),
+            _ => unreachable!(),
+        }
+
+        // clear_screen();
+    }
+
+    fn buy_weapon_menu(&mut self) {
+        let back_option = "Back to Store";
+
+        let mut weapon_names: Vec<String> = self
+            .store
+            .hand_items
+            .iter()
+            .filter_map(|item| match item {
+                HandItem::Weapon(weapon) => Some(weapon.name.clone()),
+                _ => None, // Ignore items that are not weapons
+            })
+            .collect();
+
+        weapon_names.push(back_option.to_string());
+
+        let store_selection = Select::with_theme(&ColorfulTheme::default())
+            .with_prompt("Buy")
+            .default(0)
+            .items(&weapon_names)
+            .interact()
+            .unwrap();
+
+        if store_selection == weapon_names.len() - 1 {
+            // The player chose the "Back" option
+            self.store_menu();
+        } else {
+            let weapons: Vec<&Weapon> = self
+                .store
+                .hand_items
+                .iter()
+                .filter_map(|item| match item {
+                    HandItem::Weapon(weapon) => Some(weapon),
+                    _ => None,
+                })
+                .collect();
+            let selected_weapon = weapons[store_selection].clone();
+            if self.player.money < selected_weapon.price {
+                slow_type(format!("Can not buy: {}", selected_weapon.name).as_str());
+                slow_type(
+                    format!(
+                        "Not enought money: Required {}  You have {}",
+                        selected_weapon.price, self.player.money
+                    )
+                    .as_str(),
+                );
+            } else {
+                let name = &selected_weapon.name.clone();
+                self.player.money -= &selected_weapon.price;
+                self.store.remove_hand_item(store_selection);
+                self.player.inventory.add_hand_item(HandItem::Weapon(selected_weapon));
+                slow_type(format!("Purchased: {}", name).as_str());
+            }
+        }
+        // clear_screen();
+    }
+
     fn player_inventory_equip_weapon(&mut self) {
         let back_option = "Back to Inventory";
 
@@ -209,7 +267,7 @@ impl Game {
                 })
                 .collect();
             let selected_weapon = weapons[inventory_selection].clone();
-            if self.player.strength <= selected_weapon.req_strength {
+            if self.player.strength < selected_weapon.req_strength {
                 slow_type(format!("Can not equip: {:?}", selected_weapon).as_str());
                 slow_type(
                     format!(
@@ -263,7 +321,7 @@ impl Game {
                 })
                 .collect();
             let selected_shield = shields[inventory_selection];
-            if self.player.strength <= selected_shield.req_strength {
+            if self.player.strength < selected_shield.req_strength {
                 slow_type(format!("Can not equip: {:?}", selected_shield).as_str());
                 slow_type(
                     format!(
@@ -305,7 +363,7 @@ impl Game {
             self.player_inventory();
         } else {
             let selected_armor = self.player.inventory.armors[inventory_selection].clone();
-            if self.player.strength <= selected_armor.req_strength {
+            if self.player.strength < selected_armor.req_strength {
                 slow_type(format!("Can not equip: {}", armor_names[inventory_selection]).as_str());
                 slow_type(
                     format!(
@@ -343,6 +401,7 @@ impl Game {
                 "Skip fight",
                 "Player Info",
                 "Inventory",
+                "Store",
                 "Save Game",
                 "To Main Menu",
             ];
@@ -370,12 +429,13 @@ impl Game {
                 1 => self.skip_fight(),
                 2 => self.player_info(),
                 3 => self.player_inventory(),
-                4 => {
+                4 => self.store_menu(),
+                5 => {
                     self.save_game("save1.json").expect("Failed to save game."); // TODO: add different save files
                     slow_type("Game saved.");
                     self.ludus_menu();
                 }
-                5 => self.state = GameState::MainMenu,
+                6 => self.state = GameState::MainMenu,
                 _ => unreachable!(),
             }
         } else {
@@ -384,6 +444,7 @@ impl Game {
                 "Train",
                 "Rest",
                 "Inventory",
+                "Store",
                 "Buy Freedom",
                 "Save Game",
                 "To Main Menu",
@@ -400,13 +461,14 @@ impl Game {
                 1 => self.train(),
                 2 => self.rest(),
                 3 => self.player_inventory(),
-                4 => self.buy_freedom(),
-                5 => {
+                4 => self.store_menu(),
+                5 => self.buy_freedom(),
+                6 => {
                     self.save_game("save1.json").expect("Failed to save game.");
                     slow_type("Game saved.");
                     self.ludus_menu();
                 } // TODO: create save game feature
-                6 => self.state = GameState::MainMenu,
+                7 => self.state = GameState::MainMenu,
                 _ => unreachable!(),
             }
         }
@@ -440,6 +502,7 @@ impl Game {
     fn new_game(&mut self) {
         // TODO: add backstory of prisor of war
         // TODO: add skills setup during new game like
+        clear_screen();
         slow_type("INTRODUCTION...");
         let text = "You found yourself in the arena...with a rusty sword in your hand and a terrifying enemy in front of you";
         slow_type(text);
@@ -539,6 +602,7 @@ impl Game {
                 self.player.money += 10; //TODO use enemy struct
                 if self.player.victories == 0 {
                     // first victory
+                    clear_screen();
                     slow_type("You are led out of the arena, not as a mere prisoner of war or a slave bound by chains, but as a warrior who has proven his mettle in the heat of combat.");
                     slow_type("The man in a silk cloth and two body guards approach you...");
                     slow_type("");
