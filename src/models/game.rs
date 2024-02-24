@@ -122,18 +122,18 @@ impl Game {
         match inventory_selection {
             0 => {
                 slow_type("Weapons");
-                self.player.player_inventory_weapon();
+                self.player.inventory.print_all_weapons();
                 self.player_inventory_equip_weapon();
             }
             1 => {
                 slow_type("Shields");
-                self.player.player_inventory_shields();
+                self.player.inventory.print_all_shields();
                 self.player_inventory_equip_shield();
             }
             2 => {
                 slow_type("Armor");
-                self.player.player_inventory_armor();
-                self.player_inventory_equip_armor();
+                self.player.inventory.print_all_helmets();
+                self.player_inventory_equip_helmet();
             }
             3 => self.ludus_menu(),
             _ => unreachable!(),
@@ -210,7 +210,7 @@ impl Game {
                 self.store.remove_weapon(store_selection);
                 self.player
                     .inventory
-                    .add_hand_item(HandItem::Weapon(selected_weapon));
+                    .add_weapon(selected_weapon);
                 slow_type(format!("Purchased: {}", name).as_str());
             }
         }
@@ -223,12 +223,9 @@ impl Game {
         let mut weapon_names: Vec<String> = self
             .player
             .inventory
-            .hand_items
+            .weapons
             .iter()
-            .filter_map(|item| match item {
-                HandItem::Weapon(weapon) => Some(weapon.name.clone()),
-                _ => None, // Ignore items that are not weapons
-            })
+            .map(|weapon| weapon.name.clone())
             .collect();
 
         weapon_names.push(back_option.to_string());
@@ -245,17 +242,7 @@ impl Game {
             self.player_inventory();
         } else {
             println!("Equipping: {}", weapon_names[inventory_selection]);
-            let weapons: Vec<&Weapon> = self
-                .player
-                .inventory
-                .hand_items
-                .iter()
-                .filter_map(|item| match item {
-                    HandItem::Weapon(weapon) => Some(weapon),
-                    _ => None,
-                })
-                .collect();
-            let selected_weapon = weapons[inventory_selection].clone();
+            let selected_weapon = self.player.inventory.weapons[inventory_selection].clone();
             if self.player.strength < selected_weapon.req_strength {
                 slow_type(format!("Can not equip: {:?}", selected_weapon).as_str());
                 slow_type(
@@ -279,12 +266,9 @@ impl Game {
         let mut shield_names: Vec<String> = self
             .player
             .inventory
-            .hand_items
+            .shields
             .iter()
-            .filter_map(|item| match item {
-                HandItem::Shield(shield) => Some(shield.name.clone()),
-                _ => None, // Ignore items that are not weapons
-            })
+            .map(|shield| shield.name.clone())
             .collect();
         shield_names.push(back_option.to_string());
 
@@ -299,17 +283,7 @@ impl Game {
             // The player chose the "Back" option
             self.player_inventory();
         } else {
-            let shields: Vec<&Shield> = self
-                .player
-                .inventory
-                .hand_items
-                .iter()
-                .filter_map(|item| match item {
-                    HandItem::Shield(shield) => Some(shield),
-                    _ => None,
-                })
-                .collect();
-            let selected_shield = shields[inventory_selection];
+            let selected_shield = self.player.inventory.shields[inventory_selection].clone();
             if self.player.strength < selected_shield.req_strength {
                 slow_type(format!("Can not equip: {:?}", selected_shield).as_str());
                 slow_type(
@@ -329,12 +303,12 @@ impl Game {
         // clear_screen();
     }
 
-    fn player_inventory_equip_armor(&mut self) {
+    fn player_inventory_equip_helmet(&mut self) {
         let back_option = "Back to Inventory";
         let mut armor_names: Vec<String> = self
             .player
             .inventory
-            .armors
+            .helmets
             .iter()
             .map(|armor| armor.name.clone())
             .collect();
@@ -351,7 +325,7 @@ impl Game {
             // The player chose the "Back" option
             self.player_inventory();
         } else {
-            let selected_armor = self.player.inventory.armors[inventory_selection].clone();
+            let selected_armor = self.player.inventory.helmets[inventory_selection].clone();
             if self.player.strength < selected_armor.req_strength {
                 slow_type(format!("Can not equip: {}", armor_names[inventory_selection]).as_str());
                 slow_type(
@@ -365,7 +339,7 @@ impl Game {
                 slow_type(format!("Equipping: {}", armor_names[inventory_selection]).as_str());
                 self.player
                     .equipment
-                    .equip_armor(self.player.inventory.armors[inventory_selection].clone());
+                    .equip_armor(self.player.inventory.helmets[inventory_selection].clone());
             }
         }
         // clear_screen();
