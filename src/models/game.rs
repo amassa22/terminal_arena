@@ -1,6 +1,7 @@
 use super::items::armor::{Armor, ArmorType};
 use super::items::hand_item::HandItem;
 use super::items::hand_item::HandItemType;
+use super::items::item::Item;
 use super::items::shield::Shield;
 use super::items::weapon::Weapon;
 use super::player::Player;
@@ -210,7 +211,7 @@ impl Game {
                 self.store.remove_weapon(store_selection);
                 self.player
                     .inventory
-                    .add_weapon(selected_weapon);
+                    .add_item(Item::Weapon(selected_weapon));
                 slow_type(format!("Purchased: {}", name).as_str());
             }
         }

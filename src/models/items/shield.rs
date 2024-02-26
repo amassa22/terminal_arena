@@ -1,5 +1,7 @@
 use super::hand_item::HandItemType;
 use serde::{Deserialize, Serialize};
+use super::item::Item;
+use prettytable::{cell, row, Row};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Shield {
@@ -29,4 +31,16 @@ impl Shield {
             weight,
         }
     }
+
+    pub fn to_row(&self) -> Row {
+        row![
+            &self.name,
+            &self.item_type,
+            &self.block_damage,
+            &self.weight,
+            &self.req_strength,
+            &self.price
+        ]
+    }
 }
+

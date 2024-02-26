@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use prettytable::{cell, row, Row};
+use super::item::Item;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub enum ArmorType {
@@ -54,5 +56,16 @@ impl Armor {
             price,
             weight,
         }
+    }
+
+    pub fn to_row(&self) -> Row {
+        row![
+            &self.name,
+            &self.armor_type,
+            &self.defense,
+            &self.weight,
+            &self.req_strength,
+            &self.price
+        ]
     }
 }

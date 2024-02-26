@@ -1,5 +1,6 @@
 use super::hand_item::HandItemType;
 use serde::{Deserialize, Serialize};
+use prettytable::{cell, row};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Weapon {
@@ -29,4 +30,14 @@ impl Weapon {
             price,
         }
     }
+
+    pub fn to_row(&self) -> prettytable::Row {
+        row![
+            &self.name,
+            &self.item_type,
+            format!("{}-{}", self.min_damage, self.max_damage),
+            self.req_strength.to_string()
+        ]
+    }
 }
+

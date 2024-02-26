@@ -1,10 +1,12 @@
-use crate::models::items::weapon;
+use std::ops::Deref;
+
+use crate::models::items::item::Item;
+use crate::models::items::weapon::Weapon;
 use crate::models::utils::print_line;
 
-use super::items::armor::ArmorType;
+use super::items::armor::{self, ArmorType};
 use super::items::hand_item::{HandItem, HandItemType};
-use super::items::shield;
-use super::items::weapon::Weapon;
+use super::items::{item, shield, weapon};
 use super::items::{armor::Armor, shield::Shield};
 use rand::seq::index;
 use serde::{Deserialize, Serialize};
@@ -61,16 +63,21 @@ impl Inventory {
         }
     }
 
-    pub fn add_weapon(&mut self, w: Weapon) {
-        self.weapons.push(w);
-    }
+    // pub fn add_weapon(&mut self, w: Weapon) {
+    //     self.weapons.push(w);
+    // }
 
-    pub fn remove_weapon(&mut self, index: usize) {
-        self.weapons.remove(index);
-    }
 
-    pub fn add_helmet(&mut self, item: Armor) {
-        self.helmets.push(item);
+    pub fn add_item(&mut self, item: Item) {
+        match item {
+            Item::Weapon(weapon) => self.weapons.push(weapon),
+            Item::Shield(shield) => self.shields.push(shield),
+            Item::Armor(armor) => match armor.armor_type {
+                ArmorType::Helmet => self.helmets.push(armor),
+                ArmorType::BreastPlate => todo!(),
+                ArmorType::Legs => todo!(),
+            }
+        }
     }
 
     pub fn print_all_weapons(&self) {
@@ -79,12 +86,7 @@ impl Inventory {
         weapons_table.set_titles(row!["Name", "Type", "Damage", "Required Strength"]);
 
         for weapon in &self.weapons {
-            weapons_table.add_row(row![
-                &weapon.name,
-                &weapon.item_type,
-                format!("{}-{}", weapon.min_damage, weapon.max_damage),
-                weapon.req_strength.to_string()
-            ]);
+            weapons_table.add_row(weapon.to_row());
         }
         println!("Inventory");
         print_line();
@@ -104,14 +106,7 @@ impl Inventory {
         ]);
 
         for item in &self.helmets {
-            armors_table.add_row(row![
-                item.name,
-                item.armor_type,
-                item.defense,
-                item.weight,
-                item.req_strength,
-                item.price
-            ]);
+            armors_table.add_row(item.to_row());
         }
 
         // Print the tables
@@ -134,21 +129,12 @@ impl Inventory {
         ]);
 
         for shield in &self.shields {
-
-                    shields_table.add_row(row![
-                        &shield.name,
-                        &shield.item_type,
-                        shield.block_damage,
-                        shield.weight,
-                        shield.req_strength,
-                        shield.price
-                    ]);
-                }
+            shields_table.add_row(shield.to_row());
+        }
         // Print the tables
         println!("Inventory");
         print_line();
         println!("Shields");
         shields_table.printstd();
     }
-
 }
