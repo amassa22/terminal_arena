@@ -102,5 +102,4 @@ impl Player {
         println!("👤 Player Information: {}", self.name);
         table.printstd();
     }
-
 }

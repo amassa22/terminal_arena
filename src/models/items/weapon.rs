@@ -1,6 +1,6 @@
 use super::hand_item::HandItemType;
-use serde::{Deserialize, Serialize};
 use prettytable::{cell, row};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Weapon {
@@ -40,4 +40,3 @@ impl Weapon {
         ]
     }
 }
-

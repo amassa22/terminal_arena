@@ -1,7 +1,7 @@
+use super::item::Item;
+use prettytable::{cell, row, Row};
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use prettytable::{cell, row, Row};
-use super::item::Item;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub enum ArmorType {

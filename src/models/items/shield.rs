@@ -1,7 +1,7 @@
 use super::hand_item::HandItemType;
-use serde::{Deserialize, Serialize};
 use super::item::Item;
 use prettytable::{cell, row, Row};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
 pub struct Shield {
@@ -43,4 +43,3 @@ impl Shield {
         ]
     }
 }
-

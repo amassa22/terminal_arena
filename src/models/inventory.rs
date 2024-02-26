@@ -6,17 +6,17 @@ use crate::models::utils::print_line;
 
 use super::items::armor::{self, ArmorType};
 use super::items::hand_item::{HandItem, HandItemType};
-use super::items::{item, shield, weapon};
 use super::items::{armor::Armor, shield::Shield};
+use super::items::{item, shield, weapon};
+use prettytable::{cell, row, Cell, Row, Table};
 use rand::seq::index;
 use serde::{Deserialize, Serialize};
-use prettytable::{cell, row, Cell, Row, Table};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Inventory {
     pub weapons: Vec<Weapon>,
     pub shields: Vec<Shield>,
-    pub helmets: Vec<Armor>
+    pub helmets: Vec<Armor>,
 }
 
 impl Inventory {
@@ -47,7 +47,7 @@ impl Inventory {
             1,
             5,
         );
-        let mut weapons  = Vec::new();
+        let mut weapons = Vec::new();
         let mut shields = Vec::new();
         let mut helmets = Vec::new();
         helmets.push(helmet);
@@ -67,7 +67,6 @@ impl Inventory {
     //     self.weapons.push(w);
     // }
 
-
     pub fn add_item(&mut self, item: Item) {
         match item {
             Item::Weapon(weapon) => self.weapons.push(weapon),
@@ -76,7 +75,7 @@ impl Inventory {
                 ArmorType::Helmet => self.helmets.push(armor),
                 ArmorType::BreastPlate => todo!(),
                 ArmorType::Legs => todo!(),
-            }
+            },
         }
     }
 
