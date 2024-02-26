@@ -1,9 +1,4 @@
-use super::items::armor::{Armor, ArmorType};
-use super::items::hand_item::HandItem;
-use super::items::hand_item::HandItemType;
 use super::items::item::Item;
-use super::items::shield::Shield;
-use super::items::weapon::Weapon;
 use super::player::Player;
 use super::store::Store;
 use super::utils::{clear_screen, print_line, print_logo, slow_type};
@@ -36,8 +31,8 @@ enum GameState {
 
 impl Game {
     pub fn new() -> Game {
-        let mut player: Player = Player::new("Playername".to_string());
-        let mut store: Store = Store::new();
+        let player: Player = Player::new("Playername".to_string());
+        let store: Store = Store::new();
 
         Game {
             player,

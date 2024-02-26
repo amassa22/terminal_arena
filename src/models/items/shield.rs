@@ -1,5 +1,4 @@
 use super::hand_item::HandItemType;
-use super::item::Item;
 use prettytable::{cell, row, Row};
 use serde::{Deserialize, Serialize};
 

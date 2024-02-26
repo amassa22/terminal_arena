@@ -1,6 +1,5 @@
 use super::inventory::Inventory;
 use super::items::hand_item::Equipment;
-use super::items::hand_item::HandItem;
 use super::utils::print_line;
 use prettytable::{cell, row, Cell, Row, Table};
 use serde::{Deserialize, Serialize};
