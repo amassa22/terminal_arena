@@ -1,14 +1,16 @@
-use super::items::item::Item;
+use super::items::item::{Equipable, Item};
 use super::player::Player;
 use super::store::Store;
 use super::utils::{clear_screen, print_line, print_logo, slow_type};
+use console::Term;
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::Select;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use std::any::TypeId;
 use std::fs::{self, File};
 use std::io::Read;
-use std::{io, process};
+use std::{io, option, process};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Game {
@@ -68,17 +70,13 @@ impl Game {
     }
 
     fn main_menu(&mut self) {
+        let term = Term::stdout();
+        term.clear_screen().unwrap();
         print_line();
         print_logo();
         print_line();
-        let main_menu_options = &["New Game", "Load Game", "Scores", "Exit"];
-
-        let main_selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Main Menu")
-            .default(0)
-            .items(&main_menu_options[..])
-            .interact()
-            .unwrap();
+        let main_menu_options = vec!["New Game".to_string(), "Load Game".to_string(), "Scores".to_string(), "Exit".to_string()];
+        let main_selection = self.get_selection("Main Menu", &main_menu_options);
         match main_selection {
             0 => self.new_game(),
             1 => self.load_game_menu(), // Call the function to handle loading a game
@@ -106,14 +104,8 @@ impl Game {
     }
 
     fn player_inventory(&mut self) {
-        // self.player.player_inventory();
-        let inventory_options = &["Weapons", "Shields", "Helmets", "Back to Ludus"];
-        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Inventory")
-            .default(0)
-            .items(&inventory_options[..])
-            .interact()
-            .unwrap();
+        let inventory_options = vec!["Weapons".to_string(), "Shields".to_string(), "Helmets".to_string(), "Back to Ludus".to_string()];
+        let inventory_selection = self.get_selection("Inventory", &inventory_options);
 
         match inventory_selection {
             0 => {
@@ -134,19 +126,11 @@ impl Game {
             3 => self.ludus_menu(),
             _ => unreachable!(),
         }
-
-        // clear_screen();
     }
 
     fn store_menu(&mut self) {
-        // self.player.player_inventory();
-        let inventory_options = &["Weapons", "Shields", "Helmets", "Back to Ludus"];
-        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Store")
-            .default(0)
-            .items(&inventory_options[..])
-            .interact()
-            .unwrap();
+        let inventory_options = vec!["Weapons".to_string(), "Shields".to_string(), "Helmets".to_string(), "Back to Ludus".to_string()];
+        let inventory_selection = self.get_selection("Store", &inventory_options);
 
         match inventory_selection {
             0 => {
@@ -155,6 +139,7 @@ impl Game {
                 self.buy_weapon_menu();
             }
             1 => {
+                self.store.print_all_shields();
                 slow_type("Shields");
             }
             2 => {
@@ -163,28 +148,13 @@ impl Game {
             3 => self.ludus_menu(),
             _ => unreachable!(),
         }
-
-        // clear_screen();
     }
 
     fn buy_weapon_menu(&mut self) {
-        let back_option = "Back to Store";
+        let mut weapon_names = self.store.get_weapon_names();
+        weapon_names.push("Back to Store".to_string());
 
-        let mut weapon_names: Vec<String> = self
-            .store
-            .weapons
-            .iter()
-            .map(|weapon| weapon.name.clone())
-            .collect();
-
-        weapon_names.push(back_option.to_string());
-
-        let store_selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Buy")
-            .default(0)
-            .items(&weapon_names)
-            .interact()
-            .unwrap();
+        let store_selection = self.get_selection("Buy", &weapon_names);
 
         if store_selection == weapon_names.len() - 1 {
             // The player chose the "Back" option
@@ -214,24 +184,10 @@ impl Game {
     }
 
     fn player_inventory_equip_weapon(&mut self) {
-        let back_option = "Back to Inventory";
+        let mut weapon_names = self.player.inventory.get_weapon_names();
+        weapon_names.push("Back to Inventory".to_string());
 
-        let mut weapon_names: Vec<String> = self
-            .player
-            .inventory
-            .weapons
-            .iter()
-            .map(|weapon| weapon.name.clone())
-            .collect();
-
-        weapon_names.push(back_option.to_string());
-
-        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Equip")
-            .default(0)
-            .items(&weapon_names)
-            .interact()
-            .unwrap();
+        let inventory_selection = self.get_selection("Equip", &weapon_names);
 
         if inventory_selection == weapon_names.len() - 1 {
             // The player chose the "Back" option
@@ -256,24 +212,20 @@ impl Game {
         // clear_screen();
     }
 
-    fn player_inventory_equip_shield(&mut self) {
-        let back_option = "Back to Inventory";
-
-        let mut shield_names: Vec<String> = self
-            .player
-            .inventory
-            .shields
-            .iter()
-            .map(|shield| shield.name.clone())
-            .collect();
-        shield_names.push(back_option.to_string());
-
-        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Equip")
+    fn get_selection(&self, promt: &str, options: &Vec<String>) -> usize {
+        Select::with_theme(&ColorfulTheme::default())
+            .with_prompt(promt)
             .default(0)
-            .items(&shield_names)
+            .items(options)
             .interact()
-            .unwrap();
+            .unwrap()
+    }
+
+    fn player_inventory_equip_shield(&mut self) {
+        let mut shield_names = self.player.inventory.get_shields_names();
+        shield_names.push("Back to Inventory".to_string());
+
+        let inventory_selection = self.get_selection("Equip", &shield_names);
 
         if inventory_selection == shield_names.len() - 1 {
             // The player chose the "Back" option
@@ -296,34 +248,21 @@ impl Game {
                     .equip_shield(selected_shield.to_owned());
             }
         }
-        // clear_screen();
     }
 
     fn player_inventory_equip_helmet(&mut self) {
-        let back_option = "Back to Inventory";
-        let mut armor_names: Vec<String> = self
-            .player
-            .inventory
-            .helmets
-            .iter()
-            .map(|armor| armor.name.clone())
-            .collect();
-        armor_names.push(back_option.to_string());
+        let mut helmet_names = self.player.inventory.get_helmet_names();
+        helmet_names.push("Back to Inventory".to_string());
 
-        let inventory_selection = Select::with_theme(&ColorfulTheme::default())
-            .with_prompt("Equip")
-            .default(0)
-            .items(&armor_names)
-            .interact()
-            .unwrap();
+        let inventory_selection = self.get_selection("Equip", &helmet_names);
 
-        if inventory_selection == armor_names.len() - 1 {
+        if inventory_selection == helmet_names.len() - 1 {
             // The player chose the "Back" option
             self.player_inventory();
         } else {
             let selected_armor = self.player.inventory.helmets[inventory_selection].clone();
             if self.player.strength < selected_armor.req_strength {
-                slow_type(format!("Can not equip: {}", armor_names[inventory_selection]).as_str());
+                slow_type(format!("Can not equip: {}", helmet_names[inventory_selection]).as_str());
                 slow_type(
                     format!(
                         "Strength Required: {} Current Strength {}",
@@ -332,13 +271,12 @@ impl Game {
                     .as_str(),
                 );
             } else {
-                slow_type(format!("Equipping: {}", armor_names[inventory_selection]).as_str());
+                slow_type(format!("Equipping: {}", helmet_names[inventory_selection]).as_str());
                 self.player
                     .equipment
                     .equip_armor(self.player.inventory.helmets[inventory_selection].clone());
             }
         }
-        // clear_screen();
     }
 
     fn skip_fight(&mut self) {
@@ -426,13 +364,11 @@ impl Game {
                     self.save_game("save1.json").expect("Failed to save game.");
                     slow_type("Game saved.");
                     self.ludus_menu();
-                } // TODO: create save game feature
+                }
                 7 => self.state = GameState::MainMenu,
                 _ => unreachable!(),
             }
         }
-
-        // clear_screen();
     }
 
     fn train(&mut self) {
@@ -530,23 +466,23 @@ impl Game {
             match fight_selection {
                 0 => {
                     slow_type("Attacking...");
-                    // Implement the logic for hitting the head
+                    // TODO: Implement the logic for attacking
                     enemy.health -= 50;
                 }
                 1 => {
                     slow_type("Blocking...");
                     enemy.health -= 25;
-                    // Implement logic for hitting the torso
+                    // TODO: Implement the logic for blocking
                 }
                 2 => {
                     slow_type("Waiting...");
                     enemy.health -= 1;
-                    // Implement logic for hitting the legs
+                    // TODO: Implement the logic for waiting
                 }
                 _ => unreachable!(),
             }
 
-            // Example enemy attack logic
+            // TODO: enemy attack logic
             slow_type("Enemy attacks back!");
             self.player.take_damage(25); // Example damage from the enemy
 
